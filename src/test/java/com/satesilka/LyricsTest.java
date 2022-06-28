@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LyricsTest {
     private final String url = "http://localhost:8080/lyrics";
-    private final Lyrics entity = new Lyrics("Baba z huyom", "Baba z huyom papalasi meni...");
+    private final Lyrics entity = new Lyrics("Сепаратіст", "Я рахую москалів перерахую...");
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Test

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AlbumTest {
     private final String url = "http://localhost:8080/album";
-    private final Album entity = new Album("Zalupa Rock", "Zlyi Reper Zenyk", 10);
+    private final Album entity = new Album("В коня довший", "Медовий полин", 10);
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Test

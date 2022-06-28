@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SongTest {
     private final String url = "http://localhost:8080/song";
-    private final Song entity = new Song("Baba z huyom", "Zlyi Reper Zenyk", "Zalupa Rock", 125000);
+    private final Song entity = new Song("Сепаратіст", "Медовий полин", "В коня довший", 150);
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Test

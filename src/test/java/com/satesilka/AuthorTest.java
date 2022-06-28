@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthorTest {
     private final String url = "http://localhost:8080/author";
-    private final Author entity = new Author("Zlyi Reper Zenyk");
+    private final Author entity = new Author("Медовий полин");
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Test
