@@ -1,10 +1,12 @@
 package com.satesilka.rest.service;
 
-import com.satesilka.io.CSVParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,43 +16,55 @@ import com.satesilka.rest.storage.LyricsStorage;
 @Service
 @ApplicationScope
 public class LyricsService {
-    private final LyricsStorage lyricsRepository;
+    @Autowired
+    private LyricsStorage lyricsStorage;
+    private LocalDateTime lastSaveDate = LocalDateTime.now();
 
-    public LyricsService() throws IOException, CSVParseException {
-        lyricsRepository = LyricsStorage.getInstance();
+    private void checkMidnight() throws IOException {
+        lyricsStorage.saveToCSV();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd");
+        if (!dtf.format(lastSaveDate).equals(dtf.format(LocalDateTime.now()))) {
+            lyricsStorage.clear();
+            lastSaveDate = LocalDateTime.now();
+        }
     }
 
-    public List<Lyrics> getLyricss() {
-        return lyricsRepository.findAll();
+    public List<Lyrics> getLyricss() throws IOException {
+        checkMidnight();
+        return lyricsStorage.findAll();
     }
 
-    public Optional<Lyrics> getLyrics(final int id) {
-        return lyricsRepository.findById(id);
+    public Optional<Lyrics> getLyrics(final int id) throws IOException {
+        checkMidnight();
+        return lyricsStorage.findById(id);
     }
 
-    public Lyrics createLyrics(final Lyrics lyrics){
-        lyricsRepository.save(lyrics);
+    public Lyrics createLyrics(final Lyrics lyrics) throws IOException {
+        lyricsStorage.save(lyrics);
+        checkMidnight();
         return lyrics;
     }
 
-    public Optional<Lyrics> updateLyrics(final int id, final Lyrics updatedLyrics) {
-        Optional<Lyrics> lyrics = lyricsRepository.findById(id);
+    public Optional<Lyrics> updateLyrics(final int id, final Lyrics updatedLyrics) throws IOException {
+        Optional<Lyrics> lyrics = lyricsStorage.findById(id);
 
         if (lyrics.isPresent()) {
             updatedLyrics.setId(id);
-            lyricsRepository.save(updatedLyrics);
+            lyricsStorage.update(updatedLyrics);
 
+            checkMidnight();
             return Optional.of(updatedLyrics);
         }
 
         return Optional.empty();
     }
 
-    public Optional<Lyrics> deleteLyrics(final int id) {
-        Optional<Lyrics> lyrics = lyricsRepository.findById(id);
+    public Optional<Lyrics> deleteLyrics(final int id) throws IOException {
+        Optional<Lyrics> lyrics = lyricsStorage.findById(id);
 
         if (lyrics.isPresent()) {
-            lyricsRepository.delete(lyrics.get());
+            lyricsStorage.delete(lyrics.get());
+            checkMidnight();
             return lyrics;
         }
 

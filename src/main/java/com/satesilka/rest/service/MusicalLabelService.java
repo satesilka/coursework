@@ -1,10 +1,12 @@
 package com.satesilka.rest.service;
 
-import com.satesilka.io.CSVParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,43 +16,55 @@ import com.satesilka.rest.storage.MusicalLabelStorage;
 @Service
 @ApplicationScope
 public class MusicalLabelService {
-    private final MusicalLabelStorage musicalLabelRepository;
+    @Autowired
+    private MusicalLabelStorage musicalLabelStorage;
+    private LocalDateTime lastSaveDate = LocalDateTime.now();
 
-    public MusicalLabelService() throws IOException, CSVParseException {
-        musicalLabelRepository = MusicalLabelStorage.getInstance();
+    private void checkMidnight() throws IOException {
+        musicalLabelStorage.saveToCSV();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd");
+        if (!dtf.format(lastSaveDate).equals(dtf.format(LocalDateTime.now()))) {
+            musicalLabelStorage.clear();
+            lastSaveDate = LocalDateTime.now();
+        }
     }
 
-    public List<MusicalLabel> getMusicalLabels() {
-        return musicalLabelRepository.findAll();
+    public List<MusicalLabel> getMusicalLabels() throws IOException {
+        checkMidnight();
+        return musicalLabelStorage.findAll();
     }
 
-    public Optional<MusicalLabel> getMusicalLabel(final int id) {
-        return musicalLabelRepository.findById(id);
+    public Optional<MusicalLabel> getMusicalLabel(final int id) throws IOException {
+        checkMidnight();
+        return musicalLabelStorage.findById(id);
     }
 
-    public MusicalLabel createMusicalLabel(final MusicalLabel musicalLabel){
-        musicalLabelRepository.save(musicalLabel);
+    public MusicalLabel createMusicalLabel(final MusicalLabel musicalLabel) throws IOException {
+        musicalLabelStorage.save(musicalLabel);
+        checkMidnight();
         return musicalLabel;
     }
 
-    public Optional<MusicalLabel> updateMusicalLabel(final int id, final MusicalLabel updatedMusicalLabel) {
-        Optional<MusicalLabel> musicalLabel = musicalLabelRepository.findById(id);
+    public Optional<MusicalLabel> updateMusicalLabel(final int id, final MusicalLabel updatedMusicalLabel) throws IOException {
+        Optional<MusicalLabel> musicalLabel = musicalLabelStorage.findById(id);
 
         if (musicalLabel.isPresent()) {
             updatedMusicalLabel.setId(id);
-            musicalLabelRepository.save(updatedMusicalLabel);
+            musicalLabelStorage.update(updatedMusicalLabel);
 
+            checkMidnight();
             return Optional.of(updatedMusicalLabel);
         }
 
         return Optional.empty();
     }
 
-    public Optional<MusicalLabel> deleteMusicalLabel(final int id) {
-        Optional<MusicalLabel> musicalLabel = musicalLabelRepository.findById(id);
+    public Optional<MusicalLabel> deleteMusicalLabel(final int id) throws IOException {
+        Optional<MusicalLabel> musicalLabel = musicalLabelStorage.findById(id);
 
         if (musicalLabel.isPresent()) {
-            musicalLabelRepository.delete(musicalLabel.get());
+            musicalLabelStorage.delete(musicalLabel.get());
+            checkMidnight();
             return musicalLabel;
         }
 

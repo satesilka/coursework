@@ -6,8 +6,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CSVWriter {
-    public static <T extends CSVSerializable> void write(String fileName, List<T> objects) throws IOException {
+public final class CSVWriter {
+    private CSVWriter() { }
+
+    public static <T extends CSVSerializable> void write(final String fileName, final List<T> objects) throws IOException {
         List<String> lines = new ArrayList<>();
         if (objects.size() > 0) {
             lines.add(objects.get(0).generateCSVHeader());

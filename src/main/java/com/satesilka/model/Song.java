@@ -4,34 +4,42 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.EqualsAndHashCode;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.satesilka.io.CSVParseException;
 import com.satesilka.io.CSVSerializable;
-import com.satesilka.model.deserializer.SongDeserializer;
 
 @Data
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonDeserialize(using = SongDeserializer.class)
-public class Song implements CSVSerializable {
-    private static AtomicInteger ID = new AtomicInteger(0);
+public final class Song implements CSVSerializable {
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final int CSV_TOKENS_LENGTH = 5;
+    private static final int CSV_ID_INDEX = 0;
+    private static final int CSV_NAME_INDEX = 1;
+    private static final int CSV_AUTHOR_INDEX = 2;
+    private static final int CSV_ALBUM_NAME_INDEX = 3;
+    private static final int CSV_DURATION_INDEX = 4;
 
-    private int id;
+    @EqualsAndHashCode.Exclude private int id;
     private String name;
     private String authorName;
     private String albumName;
     private int duration;
 
-    public Song(String name, String authorName, String albumName, int duration) {
-        this(ID.getAndIncrement(), name, authorName, albumName, duration);
+    public Song(final String songName, final String songAuthorName, final String songAlbumName, final int songDuration) {
+        this(idGenerator.getAndIncrement(), songName, songAuthorName, songAlbumName, songDuration);
     }
 
-    public static AtomicInteger getIdGenerator() {
-        return ID;
+    public static void setIdGenerator(final int maxId) {
+        idGenerator.set(maxId);
+    }
+
+    public void regenerateId() {
+        id = idGenerator.getAndIncrement();
     }
 
     public String generateCSVHeader() {
@@ -42,15 +50,15 @@ public class Song implements CSVSerializable {
         return String.format("%d,%s,%s,%s,%d", id, name, authorName, albumName, duration);
     }
 
-    public void fromCSV(String csvLine) throws CSVParseException {
-        String[] tokens = csvLine.split(",");
-        if (tokens.length != 5) {
+    public void fromCSV(final String csvLine) throws CSVParseException {
+        final String[] tokens = csvLine.split(",");
+        if (tokens.length != CSV_TOKENS_LENGTH) {
             throw new CSVParseException("Expected 5 values");
         }
-        id = Integer.parseInt(tokens[0]);
-        name = tokens[1];
-        authorName = tokens[2];
-        albumName = tokens[3];
-        duration = Integer.parseInt(tokens[4]);
+        id = Integer.parseInt(tokens[CSV_ID_INDEX]);
+        name = tokens[CSV_NAME_INDEX];
+        authorName = tokens[CSV_AUTHOR_INDEX];
+        albumName = tokens[CSV_ALBUM_NAME_INDEX];
+        duration = Integer.parseInt(tokens[CSV_DURATION_INDEX]);
     }
 }

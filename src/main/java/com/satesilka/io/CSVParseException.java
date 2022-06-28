@@ -1,7 +1,7 @@
 package com.satesilka.io;
 
 public class CSVParseException extends Exception {
-    public CSVParseException(String message) {
+    public CSVParseException(final String message) {
         super(message);
     }
 }
