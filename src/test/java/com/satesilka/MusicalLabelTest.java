@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MusicalLabelTest {
-    private final String url = "http://localhost:8080/musicalLabel";
+    private final String url = "http://localhost:8080/musical_label";
     private final MusicalLabel entity = new MusicalLabel("Palyanytsya Records", "Ukraine");
     private final RestTemplate restTemplate = new RestTemplate();
 
